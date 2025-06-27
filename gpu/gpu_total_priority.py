@@ -3,7 +3,7 @@ from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 
 # ▼ 1. 엑셀 업로드 및 읽기
-df = pd.read_excel("..\data\그래픽카드 가성비 (25년 5월) v1.1.xlsx", header=2)
+df = pd.read_excel("..\data\그래픽카드 가성비 (25년 6월) v1.1.xlsx", header=2)
 
 
 # ▼ 2. 컬럼명 정리
@@ -119,10 +119,14 @@ df_line_result = df_norm.sort_values(by=["라인", "라인_내_종합_성능_순
     "순수_성능점수", "라인_내_순수_성능_순위"
 ]]
 
+# ▼ 13. CSV 저장
+df_total_result.to_csv("gpu_total_priority.csv", index=False, encoding="utf-8-sig")
+df_line_result.to_csv("gpu_line_priority.csv", index=False, encoding="utf-8-sig")
+
 # 유효 가중치 조건을 만족하는 GPU만 필터링
 df_line_result = df_line_result[
     (df_line_result["유효가중치_종합"] >= 0.5) & (df_line_result["유효가중치_순수"] >= 0.5)
 ].copy()
 
 print("✅ 전체 GPU 종합/순수 성능 순위")
-print(df_total_result.head(50))
+print(df_total_result.head(200))

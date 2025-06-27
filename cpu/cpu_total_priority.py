@@ -3,7 +3,7 @@ from sklearn.preprocessing import MinMaxScaler
 import re
 
 # ▼ 2. 엑셀 읽기
-df = pd.read_excel("..\data\CPU 가성비 (25년 5월) v1.0 (1).xlsx", header=3)
+df = pd.read_excel("..\data\CPU 가성비 (25년 6월) v1.0.xlsx", header=3)
 
 # ▼ 3. 컬럼명 정리
 df = df.rename(columns={
@@ -113,3 +113,6 @@ columns_total = [
 # 전체 순위 테이블 출력
 print("전체 종합 성능 순위")
 print(df_total_sorted[columns_total].reset_index(drop=True))
+
+df_total_sorted[columns_total].reset_index(drop=True).to_csv("CPU_성능_순위_종합.csv", index=False, encoding="utf-8-sig")
+

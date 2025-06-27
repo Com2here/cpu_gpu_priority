@@ -115,3 +115,8 @@ columns_by_line = [
 print("라인별 성능 순위")
 # print(df.head(20))
 print(df_line_sorted[columns_by_line].reset_index(drop=True))
+
+# ▼ 14. 라인별 성능 순위 CSV 저장
+df_line_sorted[columns_by_line].reset_index(drop=True).to_csv(
+    "CPU_라인별_성능_순위.csv", index=False, encoding="utf-8-sig"
+)
