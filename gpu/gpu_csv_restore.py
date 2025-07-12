@@ -19,8 +19,22 @@ df = df.rename(columns={
     df.columns[8]: "FPS_FHD",
     df.columns[9]: "FPS_QHD",
     df.columns[10]: "FPS_UHD",
+    # df.columns[12]: "GPU_가격",
     df.columns[14]: "가성비_FHD",
 })
+
+# ▼ 0. 파일 경로 및 컬럼명 정의
+price_column = df.columns[12]  # 이미지 기준 "당월(3종 평균)"에 해당하는 열
+
+# ▼ A. 가격 정보 추출
+df["GPU_가격"] = (
+    df[price_column]
+    .astype(str)
+    .str.replace(",", "")
+    .str.replace("원", "")
+    .str.extract(r'(\d+)')  # 숫자만 추출
+    .astype(float)
+)
 
 # ▼ 2.5 GPU 라인 분류: 라인명 탐지 후 역방향으로 전파
 line_keywords = ["하이엔드", "퍼포먼스", "상위 메인스트림", "하위 메인스트림", "엔트리", "로우엔드"]
@@ -48,7 +62,8 @@ target_columns = [
     "파스점수", "타스점수", "스노점수",
     "블렌더점수",
     "FPS_FHD", "FPS_QHD", "FPS_UHD",
-    "가성비_FHD"
+    "가성비_FHD",
+    "GPU_가격"
 ]
 df = df[target_columns]
 
@@ -107,7 +122,7 @@ df_norm["라인_내_순수_성능_순위"] = (
 
 # ▼ 11. 전체 순위 출력
 df_total_result = df_norm.sort_values(by="종합_성능_순위").reset_index(drop=True)[[
-    "GPU명", "라인", 
+    "GPU명", "라인", "GPU_가격",
     "종합_성능점수", "유효가중치_종합", "종합_성능_순위",
     "순수_성능점수", "유효가중치_순수", "순수_성능_순위"
 ]]
@@ -120,8 +135,8 @@ df_line_result = df_norm.sort_values(by=["라인", "라인_내_종합_성능_순
 ]]
 
 # ▼ 13. CSV 저장
-df_total_result.to_csv("gpu_total_priority.csv", index=False, encoding="utf-8-sig")
-df_line_result.to_csv("gpu_line_priority.csv", index=False, encoding="utf-8-sig")
+df_total_result.to_csv("gpu_total_priority_price.csv", index=False, encoding="utf-8-sig")
+# df_line_result.to_csv("gpu_line_priority.csv", index=False, encoding="utf-8-sig")
 
 # 유효 가중치 조건을 만족하는 GPU만 필터링
 df_line_result = df_line_result[

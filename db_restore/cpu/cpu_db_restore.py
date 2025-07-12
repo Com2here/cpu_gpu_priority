@@ -4,8 +4,8 @@ from mysql.connector import Error
 import re
 
 # ─── 1. 정규화 함수 ───────────────────────────────
-def normalize_cpu_model(name: str) -> str:
-    if not name:
+def normalize_cpu_model(name) -> str:
+    if not isinstance(name, str) or not name.strip():
         return ""
 
     name = name.strip()
@@ -28,7 +28,7 @@ def normalize_cpu_model(name: str) -> str:
     return name.strip()
 
 # ─── 2. CSV 파일 읽기 ─────────────────────────────
-csv_path = "./cpu/CPU_성능_순위_종합.csv"
+csv_path = "../../cpu/CPU_성능_순위_가격포함.csv"
 df = pd.read_csv(csv_path)
 
 # ─── 3. 정규화 컬럼 생성 ─────────────────────────
@@ -38,7 +38,7 @@ df["정규화명"] = df["CPU명"].apply(normalize_cpu_model)
 def create_mysql_connection():
     try:
         connection = mysql.connector.connect(
-            host='152.69.235.49',
+            host='3.36.156.161',
             port=3306,
             database='comhere',
             user='comhere88',
@@ -51,8 +51,8 @@ def create_mysql_connection():
         print(f"❌ MySQL 연결 실패: {e}")
         return None
 
-# ─── 5. 종합/순수 성능 순위 업데이트 ──────────────
-def update_cpu_rankings(df):
+# ─── 5. 순위 및 가격 업데이트 ─────────────────────
+def update_cpu_data(df):
     conn = create_mysql_connection()
     if not conn:
         return
@@ -64,18 +64,31 @@ def update_cpu_rankings(df):
         norm_name = row["정규화명"]
         total_rank = row["종합_성능_순위"]
         pure_rank = row["순수_성능_순위"]
+        price = row["CPU_가격"]
+        total_score = row["종합_성능점수"]
+        pure_score = row["순수_성능점수"]
 
-        if not norm_name or pd.isna(total_rank) or pd.isna(pure_rank):
+        if not norm_name or pd.isna(total_rank) or pd.isna(pure_rank) or pd.isna(price) or pd.isna(total_score) or pd.isna(pure_score):
             continue
 
         try:
             query = """
-                UPDATE cpu_detailed_matches
+                UPDATE cpu
                 SET total_score_rank = %s,
-                    pure_score_rank = %s
+                    pure_score_rank = %s,
+                    price = %s,
+                    total_score = %s,
+                    pure_score = %s
                 WHERE model = %s
             """
-            cursor.execute(query, (int(total_rank), int(pure_rank), norm_name))
+            cursor.execute(query, (
+                int(total_rank),
+                int(pure_rank),
+                int(price),
+                float(total_score),
+                float(pure_score),
+                norm_name
+            ))
             if cursor.rowcount > 0:
                 updated += 1
         except Error as e:
@@ -87,4 +100,4 @@ def update_cpu_rankings(df):
     conn.close()
 
 # ─── 6. 실행 ─────────────────────────────────────
-update_cpu_rankings(df)
+update_cpu_data(df)

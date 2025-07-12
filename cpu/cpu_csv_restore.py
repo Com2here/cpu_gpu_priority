@@ -104,15 +104,25 @@ df["라인_내_순수_성능_순위"] = (
 df_total_sorted = df.sort_values(by="종합_성능점수", ascending=False)
 
 # 출력할 열 선택
+# columns_total = [
+#     "CPU명", "라인",
+#     "종합_성능점수", "종합_성능_순위",
+#     "순수_성능점수", "순수_성능_순위"
+# ]
 columns_total = [
     "CPU명", "라인",
+    "CPU_가격",                      # 가격 정보 추가
     "종합_성능점수", "종합_성능_순위",
     "순수_성능점수", "순수_성능_순위"
 ]
 
 # 전체 순위 테이블 출력
 print("전체 종합 성능 순위")
-print(df_total_sorted[columns_total].reset_index(drop=True))
+# print(df_total_sorted[columns_total].reset_index(drop=True))
 
-df_total_sorted[columns_total].reset_index(drop=True).to_csv("CPU_성능_순위_종합.csv", index=False, encoding="utf-8-sig")
+# df_total_sorted[columns_total].reset_index(drop=True).to_csv("CPU_성능_순위_종합.csv", index=False, encoding="utf-8-sig")
+df_total_sorted[columns_total].reset_index(drop=True).to_csv(
+    "CPU_성능_순위_가격포함.csv", index=False, encoding="utf-8-sig"
+)
 
+print("✅ 저장 완료: CPU_성능_순위_가격포함.csv")
